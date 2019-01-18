@@ -1,3 +1,5 @@
+const math = require('mathjs');
+
 const token = process.env.TOKEN;
 
 const Bot = require('node-telegram-bot-api');
@@ -13,11 +15,23 @@ else {
 
 console.log('Bot server started in the ' + process.env.NODE_ENV + ' mode');
 
-bot.on('message', (msg) => {
-  const name = msg.from.first_name;
-  bot.sendMessage(msg.chat.id, 'Hello, ' + name + '!').then(() => {
-    // reply sent!
-  });
+bot.on('inline_query', (msg) => {
+  const query = msg.query;
+  let resultValue = math.eval(query)
+  const results = [
+    {
+      type: 'article',
+      id: '0',
+      title: 'Inline Calculator Bot',
+      description: query,
+      input_message_content: {message_text: query + ' = ' + resultValue}
+    }
+  ]
+  bot.answerInlineQuery(msg.id, JSON.stringify(results)).then(() => {});
 });
+
+
+
+
 
 module.exports = bot;
