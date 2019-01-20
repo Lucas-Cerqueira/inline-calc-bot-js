@@ -1,4 +1,15 @@
 const math = require('mathjs');
+const limitedEval = math.eval
+// Limiting eval functions for security issues
+// Source: http://mathjs.org/docs/expressions/security.html
+math.import({
+  'import': function () { throw new Error('Function import is disabled') },
+  'createUnit': function () { throw new Error('Function createUnit is disabled') },
+  'eval': function () { throw new Error('Function eval is disabled') },
+  'parse': function () { throw new Error('Function parse is disabled') },
+  'simplify': function () { throw new Error('Function simplify is disabled') },
+  'derivative': function () { throw new Error('Function derivative is disabled') }
+}, { override: true })
 
 const token = process.env.TOKEN;
 
@@ -17,7 +28,7 @@ console.log('Bot server started in the ' + process.env.NODE_ENV + ' mode');
 
 bot.on('inline_query', (msg) => {
   const query = msg.query;
-  let resultValue = math.eval(query)
+  let resultValue = limitedEval(query)
   const results = [
     {
       type: 'article',
@@ -29,9 +40,5 @@ bot.on('inline_query', (msg) => {
   ]
   bot.answerInlineQuery(msg.id, JSON.stringify(results)).then(() => {});
 });
-
-
-
-
 
 module.exports = bot;
